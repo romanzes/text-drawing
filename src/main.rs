@@ -9,12 +9,42 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
-    get_ascent_from_font();
+    devanagari_test();
+}
+
+fn devanagari_test() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(65.0);
+    text_style.set_font_families(&vec!["Adlery", "NotoSansDevanagari"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let adlery =
+        Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
+    let noto_sans =
+        Typeface::from_data(data_from_file_path(Path::new("NotoSansDevanagari-Regular.ttf")), None).unwrap();
+    typeface_provider.register_typeface(adlery, Some("Adlery"));
+    typeface_provider.register_typeface(noto_sans, Some("NotoSansDevanagari"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    paragraph_builder.add_text("लिख\n");
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(500.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/devangari/devanagari_test.png",
+    );
 }
 
 fn get_ascent_from_font() {
     let typeface = Typeface::from_data(data_from_file_path(Path::new("LeagueSpartan.woff2")), None).unwrap();
-    let font = Font::from_typeface(typeface, Some(65.0));
+    let font = Font::from_typeface(typeface, Some(1.0));
     let (_, metrics) = font.metrics();
     println!("ascent: {}", metrics.ascent);
 }

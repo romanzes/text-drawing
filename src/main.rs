@@ -13,7 +13,7 @@ fn main() {
 }
 
 fn test_arimo_woff2() {
-    let font = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    let font = Typeface::from_data(data_from_file_path(Path::new("Arimo-Regular.woff2")), None).unwrap();
 }
 
 fn metrics_sigsegv() {

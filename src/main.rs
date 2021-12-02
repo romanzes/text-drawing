@@ -9,7 +9,63 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
-    devanagari_test();
+    test_arimo_woff2();
+}
+
+fn test_arimo_woff2() {
+    let font = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+}
+
+fn metrics_sigsegv() {
+    let mut style = ParagraphStyle::new();
+    style.set_text_style(&TextStyle::new());
+    let mut font_collection = FontCollection::new();
+    font_collection.set_default_font_manager(FontMgr::default(), None);
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    paragraph_builder.add_text("Lorem ipsum dolor sit amet\n");
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(100.0);
+
+    let line_metrics = &paragraph.get_line_metrics()[0];
+    line_metrics.get_style_metrics(line_metrics.start_index..line_metrics.end_index);
+}
+
+fn multi_line_end_spaces() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(1000, 1000)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(18.666666666666668);
+    text_style.set_letter_spacing(1.8666666666666668);
+    text_style.set_font_families(&vec!["OpenSans"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let font = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("OpenSans"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    let text = "Two lines with spaces  at the ends \n";
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(242.48);
+
+    paragraph
+        .get_line_metrics()
+        .iter()
+        .for_each(|metrics| println!("line start: {}, end: {}", metrics.start_index, metrics.end_index));
+
+    let line_metrics = &paragraph.get_line_metrics()[0];
+    line_metrics.get_style_metrics(0..23)[0];
+
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/multi_line_end_spaces.png",
+    );
+    panic!();
 }
 
 fn devanagari_test() {
@@ -24,7 +80,7 @@ fn devanagari_test() {
     let adlery =
         Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
     let noto_sans =
-        Typeface::from_data(data_from_file_path(Path::new("NotoSansDevanagari-Regular.ttf")), None).unwrap();
+        Typeface::from_data(data_from_file_path(Path::new("NotoSansDevanagari-Regular.woff2")), None).unwrap();
     typeface_provider.register_typeface(adlery, Some("Adlery"));
     typeface_provider.register_typeface(noto_sans, Some("NotoSansDevanagari"));
     let mut font_collection = FontCollection::new();
@@ -38,7 +94,7 @@ fn devanagari_test() {
     paragraph.paint(surface.canvas(), point);
     save_png(
         &mut surface,
-        "/Users/romanpetrenko/Downloads/devangari/devanagari_test.png",
+        "/Users/romanpetrenko/Downloads/devanagari_test.png",
     );
 }
 

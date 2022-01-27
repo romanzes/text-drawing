@@ -1,3 +1,4 @@
+use skia_safe::paint::Style;
 use skia_safe::textlayout::{
     FontCollection, ParagraphBuilder, ParagraphStyle, RectHeightStyle, RectWidthStyle, TextStyle,
     TypefaceFontProvider,
@@ -9,7 +10,86 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
-    test_arimo_woff2();
+    text_without_layout();
+}
+
+fn text_without_layout() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+
+    let mut paint = Paint::default();
+    paint.set_anti_alias(true);
+    paint.set_color(Color::from_rgb(0, 136, 0));
+    paint.set_style(Style::Stroke);
+    paint.set_stroke_width(1.0);
+
+    let adlery = Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
+    let blob = TextBlob::from_str("Skia!", &Font::new(adlery, 50.0)).unwrap();
+
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    surface.canvas().draw_text_blob(blob, (0.0, 50.0), &paint);
+
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/text_without_layout.png",
+    );
+}
+
+fn hollow_text() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(65.0);
+    text_style.set_font_families(&vec!["Adlery", "NotoSansDevanagari"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let adlery =
+        Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
+    let noto_sans =
+        Typeface::from_data(data_from_file_path(Path::new("NotoSansDevanagari-Regular.woff2")), None).unwrap();
+    typeface_provider.register_typeface(adlery, Some("Adlery"));
+    typeface_provider.register_typeface(noto_sans, Some("NotoSansDevanagari"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    paragraph_builder.add_text("लिख\n");
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(500.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/devanagari_test.png",
+    );
+}
+
+fn chinese_shifting() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(1000, 1000)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(40.0);
+    text_style.set_font_families(&vec!["SourceHan-Sans"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let font = Typeface::from_data(data_from_file_path(Path::new("SourceHan-Sans.ttf")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("SourceHan-Sans"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    let text = "         豎汽沟笨鹦险薨，莶迌砗枑翧隧庎覨：厉柯、吆妩縩、遡蹬劼、縘溙尟摱，咦掽苵瘔芣嬑鎊衢鯁憥訾馍敖貏膸韋蠏硠羵廢龐磹。\n";
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(1000.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/chinese_shifting.png",
+    );
+    panic!();
 }
 
 fn test_arimo_woff2() {
@@ -159,10 +239,10 @@ fn locale_test() {
     text_style.set_color(Color::from_rgb(0, 0, 0));
     text_style.set_font_size(40.0);
     text_style.set_font_families(&vec!["NotoSansSC"]);
-    text_style.set_locale("en-AU");
+    text_style.set_locale("ja-JP");
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font = Typeface::from_data(data_from_file_path(Path::new("NotoSans_CJK_SC.otf")), None).unwrap();
+    let font = Typeface::from_data(data_from_file_path(Path::new("NotoSans_CJK_SC.woff2")), None).unwrap();
     typeface_provider.register_typeface(font, Some("NotoSansSC"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -402,7 +482,7 @@ fn no_end_line_break_wrapping() {
 }
 
 fn text_wrapping() {
-    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(1000, 1000)).unwrap();
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     let mut style = ParagraphStyle::new();
     let mut text_style = TextStyle::new();
@@ -418,7 +498,7 @@ fn text_wrapping() {
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
 
     let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection.clone());
-    let text = "Lorem ipsum/dolor\nLorem ipsum-dolor\nLorem ipsum?dolor\n";
+    let text = "Lorem ipsum/dolor\nLorem ipsum?dolor\nLorem ipsum,dolor\nLorem ipsum.dolor\nLorem ipsum<dolor\nLorem ipsum>dolor\n";
     paragraph_builder.add_text(text);
     let mut paragraph = paragraph_builder.build();
     paragraph.layout(230.0);

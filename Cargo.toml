@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-skia-safe = { git = "https://github.com/StewartCanva/rust-skia", rev = "d4432be2656591638408ed4b323c00a7a0f5b618", features = ["textlayout"] }
+skia-safe = { git = "https://github.com/StewartCanva/rust-skia", rev = "9fa27cfdd1ef1f998bcc209ea29339e4ba6fb2a7", features = ["textlayout"] }
 #skia-safe = { path = "/Users/romanpetrenko/workspace/rust-skia/skia-safe", features = ["textlayout"] }
-#skia-safe = { version = "0.45.0", features = ["textlayout"] }
+#skia-safe = { version = "0.45.1", features = ["textlayout"] }
 #skia-safe = { git = "https://github.com/rust-skia/rust-skia", branch = "master", features = ["textlayout"] }
 png = "0.16.8"

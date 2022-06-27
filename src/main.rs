@@ -10,7 +10,129 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 fn main() {
-    text_without_layout();
+    runic_text();
+}
+
+fn runic_text() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 240)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(32.0);
+    text_style.set_font_families(&vec!["Open Sans"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let open_sans = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    typeface_provider.register_typeface(open_sans, Some("Open Sans"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    font_collection.set_default_font_manager(Some(FontMgr::default()), None);
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    let text = "ᚦᚨᛈᚨᚾᚨ";
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(500.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/runic_text.png",
+    );
+    // panic!();
+}
+
+fn georgian_uppercase() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(26.6667);
+    text_style.set_font_families(&vec!["Noto Sans"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("NotoSansGeorgian-Bold.woff2")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("Noto Sans"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    let text = "კვერცხუჯრედის\n".to_uppercase();
+    println!("{}", text);
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(320.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/georgian_uppercase.png",
+    );
+    panic!();
+}
+
+fn disappearing_letter() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(26.6667);
+    text_style.set_font_families(&vec!["Open Sans Light"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("OpenSans-Light.ttf")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("Open Sans Light"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    let text = "1\n";
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(15.218);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/disappearing_letter.png",
+    );
+    panic!();
+}
+
+fn totally_missing_glyphs() {
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(320, 320)).unwrap();
+    let mut style = ParagraphStyle::new();
+    let mut text_style = TextStyle::new();
+    text_style.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_font_size(40.0);
+    text_style.set_font_families(&vec!["Test", "Fallback"]);
+    style.set_text_style(&text_style);
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("Adigiana_Ultra.ttf")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("Test"));
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("NotoSans_CJK_SC.otf")), None).unwrap();
+    typeface_provider.register_typeface(font, Some("Fallback"));
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    font_collection.disable_font_fallback();
+    let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
+    // let text = "訮鿪";
+    // let text = "H鿪";
+    let text = "一鿯";
+    paragraph_builder.add_text(text);
+    let mut paragraph = paragraph_builder.build();
+    paragraph.layout(320.0);
+    let point = skia_safe::Point::new(0.0, 0.0);
+    surface.canvas().clear(Color::from_rgb(255, 255, 255));
+    paragraph.paint(surface.canvas(), point);
+    save_png(
+        &mut surface,
+        "/Users/romanpetrenko/Downloads/totally_missing_glyphs.png",
+    );
 }
 
 fn text_without_layout() {
@@ -43,7 +165,8 @@ fn chinese_shifting() {
     text_style.set_font_families(&vec!["SourceHan-Sans"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font = Typeface::from_data(data_from_file_path(Path::new("SourceHan-Sans.ttf")), None).unwrap();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("SourceHan-Sans.ttf")), None).unwrap();
     typeface_provider.register_typeface(font, Some("SourceHan-Sans"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -63,7 +186,8 @@ fn chinese_shifting() {
 }
 
 fn test_arimo_woff2() {
-    let font = Typeface::from_data(data_from_file_path(Path::new("Arimo-Regular.woff2")), None).unwrap();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("Arimo-Regular.woff2")), None).unwrap();
 }
 
 fn metrics_sigsegv() {
@@ -90,7 +214,8 @@ fn multi_line_end_spaces() {
     text_style.set_font_families(&vec!["OpenSans"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
     typeface_provider.register_typeface(font, Some("OpenSans"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -100,10 +225,12 @@ fn multi_line_end_spaces() {
     let mut paragraph = paragraph_builder.build();
     paragraph.layout(242.48);
 
-    paragraph
-        .get_line_metrics()
-        .iter()
-        .for_each(|metrics| println!("line start: {}, end: {}", metrics.start_index, metrics.end_index));
+    paragraph.get_line_metrics().iter().for_each(|metrics| {
+        println!(
+            "line start: {}, end: {}",
+            metrics.start_index, metrics.end_index
+        )
+    });
 
     let line_metrics = &paragraph.get_line_metrics()[0];
     line_metrics.get_style_metrics(0..23)[0];
@@ -127,16 +254,18 @@ fn devanagari_test() {
     text_style.set_font_families(&vec!["Adlery", "NotoSansDevanagari"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let adlery =
-        Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
-    let noto_sans =
-        Typeface::from_data(data_from_file_path(Path::new("NotoSansDevanagari-Regular.woff2")), None).unwrap();
+    let adlery = Typeface::from_data(data_from_file_path(Path::new("Adlery.woff2")), None).unwrap();
+    let noto_sans = Typeface::from_data(
+        data_from_file_path(Path::new("NotoSansDevanagari-Regular.woff2")),
+        None,
+    )
+    .unwrap();
     typeface_provider.register_typeface(adlery, Some("Adlery"));
     typeface_provider.register_typeface(noto_sans, Some("NotoSansDevanagari"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
     let mut paragraph_builder = ParagraphBuilder::new(&style, font_collection);
-    paragraph_builder.add_text("लिख\n");
+    paragraph_builder.add_text("लि鿪ख\n");
     let mut paragraph = paragraph_builder.build();
     paragraph.layout(500.0);
     let point = skia_safe::Point::new(0.0, 0.0);
@@ -149,7 +278,8 @@ fn devanagari_test() {
 }
 
 fn get_ascent_from_font() {
-    let typeface = Typeface::from_data(data_from_file_path(Path::new("LeagueSpartan.woff2")), None).unwrap();
+    let typeface =
+        Typeface::from_data(data_from_file_path(Path::new("LeagueSpartan.woff2")), None).unwrap();
     let font = Font::from_typeface(typeface, Some(1.0));
     let (_, metrics) = font.metrics();
     println!("ascent: {}", metrics.ascent);
@@ -164,7 +294,8 @@ fn spaces_with_different_style() {
     text_style.set_font_families(&vec!["OpenSans"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
     typeface_provider.register_typeface(font, Some("OpenSans"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -182,8 +313,7 @@ fn spaces_with_different_style() {
     let mut paragraph = paragraph_builder.build();
     paragraph.layout(320.0);
 
-    let boxes =
-        paragraph.get_rects_for_range(0..16, RectHeightStyle::Max, RectWidthStyle::Tight);
+    let boxes = paragraph.get_rects_for_range(0..16, RectHeightStyle::Max, RectWidthStyle::Tight);
     let box_slice = boxes.as_slice();
     box_slice.iter().for_each(|bx| {
         println!("box left: {}, right: {}", bx.rect.left, bx.rect.right);
@@ -212,7 +342,11 @@ fn locale_test() {
     text_style.set_locale("ja-JP");
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font = Typeface::from_data(data_from_file_path(Path::new("NotoSans_CJK_SC.woff2")), None).unwrap();
+    let font = Typeface::from_data(
+        data_from_file_path(Path::new("NotoSans_CJK_SC.woff2")),
+        None,
+    )
+    .unwrap();
     typeface_provider.register_typeface(font, Some("NotoSansSC"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -269,8 +403,11 @@ fn twemoji() {
     text_style.set_font_families(&vec!["Twemoji"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let typeface =
-        Typeface::from_data(data_from_file_path(Path::new("TwitterColorEmoji.ttf")), None).unwrap();
+    let typeface = Typeface::from_data(
+        data_from_file_path(Path::new("TwitterColorEmoji.ttf")),
+        None,
+    )
+    .unwrap();
     typeface_provider.register_typeface(typeface, Some("Twemoji"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -282,10 +419,7 @@ fn twemoji() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/twemoji.png",
-    );
+    save_png(&mut surface, "/Users/romanpetrenko/Downloads/twemoji.png");
     panic!();
 }
 

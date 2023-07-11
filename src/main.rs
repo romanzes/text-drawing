@@ -3,7 +3,6 @@ use skia_safe::textlayout::{
     FontCollection, ParagraphBuilder, ParagraphStyle, RectHeightStyle, RectWidthStyle, TextStyle,
     TypefaceFontProvider,
 };
-use skia_safe::wrapper::ValueWrapper;
 use skia_safe::{Color, Data, Font, FontMgr, FontStyle, ISize, Paint, Surface, TextBlob, Typeface};
 use std::fs::File;
 use std::io::{Read, Write};
@@ -22,7 +21,8 @@ fn runic_text() {
     text_style.set_font_families(&vec!["Open Sans"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let open_sans = Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
+    let open_sans =
+        Typeface::from_data(data_from_file_path(Path::new("OpenSans-Regular.ttf")), None).unwrap();
     typeface_provider.register_typeface(open_sans, Some("Open Sans"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -35,11 +35,7 @@ fn runic_text() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/runic_text.png",
-    );
-    // panic!();
+    save_png(&mut surface, "output/runic_text.png");
 }
 
 fn georgian_uppercase() {
@@ -51,8 +47,11 @@ fn georgian_uppercase() {
     text_style.set_font_families(&vec!["Noto Sans"]);
     style.set_text_style(&text_style);
     let mut typeface_provider = TypefaceFontProvider::new();
-    let font =
-        Typeface::from_data(data_from_file_path(Path::new("NotoSansGeorgian-Bold.woff2")), None).unwrap();
+    let font = Typeface::from_data(
+        data_from_file_path(Path::new("NotoSansGeorgian-Bold.woff2")),
+        None,
+    )
+    .unwrap();
     typeface_provider.register_typeface(font, Some("Noto Sans"));
     let mut font_collection = FontCollection::new();
     font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
@@ -65,11 +64,7 @@ fn georgian_uppercase() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/georgian_uppercase.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/georgian_uppercase.png");
 }
 
 fn disappearing_letter() {
@@ -94,11 +89,7 @@ fn disappearing_letter() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/disappearing_letter.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/disappearing_letter.png");
 }
 
 fn totally_missing_glyphs() {
@@ -129,10 +120,7 @@ fn totally_missing_glyphs() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/totally_missing_glyphs.png",
-    );
+    save_png(&mut surface, "output/totally_missing_glyphs.png");
 }
 
 fn text_without_layout() {
@@ -150,10 +138,7 @@ fn text_without_layout() {
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     surface.canvas().draw_text_blob(blob, (0.0, 50.0), &paint);
 
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_without_layout.png",
-    );
+    save_png(&mut surface, "output/text_without_layout.png");
 }
 
 fn chinese_shifting() {
@@ -178,16 +163,7 @@ fn chinese_shifting() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/chinese_shifting.png",
-    );
-    panic!();
-}
-
-fn test_arimo_woff2() {
-    let font =
-        Typeface::from_data(data_from_file_path(Path::new("Arimo-Regular.woff2")), None).unwrap();
+    save_png(&mut surface, "output/chinese_shifting.png");
 }
 
 fn metrics_sigsegv() {
@@ -238,11 +214,7 @@ fn multi_line_end_spaces() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/multi_line_end_spaces.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/multi_line_end_spaces.png");
 }
 
 fn devanagari_test() {
@@ -271,10 +243,7 @@ fn devanagari_test() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/devanagari_test.png",
-    );
+    save_png(&mut surface, "output/devanagari_test.png");
 }
 
 fn get_ascent_from_font() {
@@ -325,11 +294,7 @@ fn spaces_with_different_style() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/spaces_with_different_style.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/spaces_with_different_style.png");
 }
 
 fn locale_test() {
@@ -358,11 +323,7 @@ fn locale_test() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/locale_test.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/locale_test.png");
 }
 
 fn letter_spacing() {
@@ -387,11 +348,7 @@ fn letter_spacing() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/letter_spacing_2/test.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/letter_spacing_2/test.png");
 }
 
 fn twemoji() {
@@ -419,8 +376,7 @@ fn twemoji() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(&mut surface, "/Users/romanpetrenko/Downloads/twemoji.png");
-    panic!();
+    save_png(&mut surface, "output/twemoji.png");
 }
 
 fn text_shifting_after_accent() {
@@ -446,11 +402,7 @@ fn text_shifting_after_accent() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_shifting_after_accent.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/text_shifting_after_accent.png");
 }
 
 fn box_character_github_friendly() {
@@ -483,11 +435,7 @@ fn box_character_github_friendly() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/box_character_github_friendly.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/box_character_github_friendly.png");
 }
 
 fn text_shifting_after_accent_github_friendly() {
@@ -520,11 +468,7 @@ fn text_shifting_after_accent_github_friendly() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_shifting_after_accent.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/text_shifting_after_accent.png");
 }
 
 fn thai_text() {
@@ -549,11 +493,7 @@ fn thai_text() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/thai_text/thai_text.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/thai_text/thai_text.png");
 }
 
 fn no_end_line_break_wrapping() {
@@ -578,11 +518,7 @@ fn no_end_line_break_wrapping() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/no_end_line_break_wrapping.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/no_end_line_break_wrapping.png");
 }
 
 fn text_wrapping() {
@@ -608,11 +544,7 @@ fn text_wrapping() {
     paragraph.layout(230.0);
     paragraph.paint(surface.canvas(), skia_safe::Point::new(0.0, 0.0));
 
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_wrapping.png",
-    );
-    panic!();
+    save_png(&mut surface, "output/text_wrapping.png");
 }
 
 fn accented_text() {
@@ -646,11 +578,7 @@ fn accented_text() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/accented_text.png",
-    );
-    // panic!();
+    save_png(&mut surface, "output/accented_text.png");
 }
 
 fn text_positioning() {
@@ -674,11 +602,7 @@ fn text_positioning() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/no_vertical_shift_2.png",
-    );
-    // panic!();
+    save_png(&mut surface, "output/no_vertical_shift_2.png");
 }
 
 fn system_font_fallback() {
@@ -703,11 +627,7 @@ fn system_font_fallback() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_drawing.png",
-    );
-    // panic!();
+    save_png(&mut surface, "output/text_drawing.png");
 }
 
 fn text_measuring() {
@@ -749,11 +669,7 @@ fn text_measuring() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_drawing.png",
-    );
-    // panic!();
+    save_png(&mut surface, "output/text_drawing.png");
 }
 
 fn fallback_test() {
@@ -780,10 +696,7 @@ fn fallback_test() {
     let point = skia_safe::Point::new(0.0, 0.0);
     surface.canvas().clear(Color::from_rgb(255, 255, 255));
     paragraph.paint(surface.canvas(), point);
-    save_png(
-        &mut surface,
-        "/Users/romanpetrenko/Downloads/text_drawing.png",
-    );
+    save_png(&mut surface, "output/text_drawing.png");
 }
 
 pub fn data_from_file_path(file_path: &Path) -> Data {

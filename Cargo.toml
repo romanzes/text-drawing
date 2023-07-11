@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 #skia-safe = { git = "https://github.com/StewartCanva/rust-skia", rev = "23267e44676fa5e1f22a8df32b518c3688437b3e", features = ["textlayout"] }
-skia-safe = { path = "/Users/romanpetrenko/work/rust-skia/skia-safe", features = ["textlayout"] }
-#skia-safe = { version = "0.43.0", features = ["textlayout"] }
+#skia-safe = { path = "/Users/romanpetrenko/work/rust-skia/skia-safe", features = ["textlayout"] }
+skia-safe = { version = "0.43.0", features = ["textlayout"] }
 #skia-safe = { git = "https://github.com/rust-skia/rust-skia", branch = "master", features = ["textlayout"] }
 png = "0.16.8"

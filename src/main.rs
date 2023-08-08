@@ -1,15 +1,101 @@
+use std::cell::RefCell;
 use skia_safe::paint::Style;
-use skia_safe::textlayout::{
-    FontCollection, ParagraphBuilder, ParagraphStyle, RectHeightStyle, RectWidthStyle, TextStyle,
-    TypefaceFontProvider,
-};
+use skia_safe::textlayout::{FontCollection, Paragraph, ParagraphBuilder, ParagraphStyle, RectHeightStyle, RectWidthStyle, TextAlign, TextDirection, TextHeightBehavior, TextStyle, TypefaceFontProvider};
 use skia_safe::{Color, Data, Font, FontMgr, FontStyle, ISize, Paint, Surface, TextBlob, Typeface};
 use std::fs::File;
 use std::io::{Read, Write};
+use std::ops::Range;
 use std::path::Path;
 
 fn main() {
-    runic_text();
+    twemoji_measuring();
+}
+
+fn twemoji_measuring() {
+    let canvas_width = 1080;
+
+    let mut surface = Surface::new_raster_n32_premul(ISize::new(canvas_width, 1080)).unwrap();
+    let mut typeface_provider = TypefaceFontProvider::new();
+    let mut font_collection = FontCollection::new();
+    font_collection.set_asset_font_manager(Some(typeface_provider.clone().into()));
+    font_collection.set_default_font_manager(Some(FontMgr::default()), None);
+
+    let provider_ref = RefCell::new(typeface_provider);
+    let mut typeface_provider = provider_ref.borrow_mut();
+    let font =
+        Typeface::from_data(data_from_file_path(Path::new("Twemoji.Mozilla.ttf")), None).unwrap();
+    typeface_provider.register_typeface(font.clone(), Some("YAFbtwemoji-0-Normal-Normal"));
+
+    let text = "❤\n";
+
+    let text_to_support = text.trim_end_matches('\n');
+    let mut glyph_ids = vec![0; text_to_support.chars().count()];
+    font.str_to_glyphs(text_to_support, &mut glyph_ids);
+    println!("glyph_ids: {:?}", glyph_ids);
+    let supports_text = !glyph_ids.iter().any(|glyph| *glyph == 0);
+    println!("supports text: {}", supports_text);
+
+    let mut paragraph_style = ParagraphStyle::new();
+    paragraph_style.set_text_direction(TextDirection::LTR);
+    paragraph_style.set_text_align(TextAlign::Left);
+    paragraph_style.set_text_height_behavior(TextHeightBehavior::DisableAll);
+    let mut text_style = TextStyle::new();
+    text_style.set_letter_spacing(0.0);
+    paragraph_style.set_text_style(&text_style);
+    let mut builder = ParagraphBuilder::new(&paragraph_style, font_collection);
+    let mut text_style = builder.peek_style();
+    let mut paint = Paint::default();
+    paint.set_color(Color::from_rgb(0, 0, 0));
+    text_style.set_foreground_color(paint);
+    text_style.set_font_families(&vec!["YAFbtwemoji-0-Normal-Normal"]);
+    text_style.set_font_size(400.0);
+    remove_unsupported_font_features(&mut text_style);
+    text_style.set_locale("en-GB");
+    builder.push_style(&text_style);
+    builder.add_text(text);
+    builder.pop();
+    let mut paragraph = builder.build();
+    paragraph.layout(1_000_000_f32);
+
+    let line_width = paragraph.get_line_metrics().first().unwrap().width;
+    let ascent = paragraph.get_line_metrics().first().unwrap().ascent;
+    println!("ascent: {}", ascent);
+
+    let point = skia_safe::Point::new(canvas_width as f32 - line_width as f32, 0.0);
+    surface.canvas().clear(Color::from_rgb(0, 255, 0));
+    paragraph.paint(surface.canvas(), point);
+    save_png(&mut surface, "output/twemoji.png");
+}
+
+fn remove_unsupported_font_features(text_style: &mut TextStyle) {
+    text_style.add_font_feature("kern", 0); // kerning
+    text_style.add_font_feature("calt", 0); // contextual alternates
+    text_style.add_font_feature("liga", 0); // standard ligatures
+    text_style.add_font_feature("clig", 0); // contextual ligatures
+    text_style.add_font_feature("dlig", 0); // discretionary ligatures
+    text_style.add_font_feature("hlig", 0); // historical ligatures
+}
+
+fn horizontal_bounds(paragraph: &mut Paragraph, range: Range<usize>) -> (f64, f64) {
+    // SkParagraph::get_rects_for_range() returns a list of rectangles, one rectangle per
+    // text run. A text run is a part of text having the same style.
+    let boxes =
+        paragraph.get_rects_for_range(range, RectHeightStyle::Max, RectWidthStyle::Tight);
+    let box_slice = boxes.as_slice();
+    let mut left = f32::MAX;
+    let mut right = 0_f32;
+    // We have to iterate through all of the boxes as sometimes the first box is not the
+    // leftmost and the last box is not the rightmost.
+    // See also: test_accent_space_line_break_style_change()
+    box_slice.iter().for_each(|t| {
+        if t.rect.left < left {
+            left = t.rect.left
+        }
+        if t.rect.right > right {
+            right = t.rect.right
+        }
+    });
+    (left as f64, right as f64)
 }
 
 fn runic_text() {
